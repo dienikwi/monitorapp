@@ -16,12 +16,10 @@ class AuthService {
         password: senha,
       );
 
-      await _firestore.collection('usuarios').doc(cred.user!.uid).set({
-        'uid': cred.user!.uid,
-        'nome': nome,
-        'email': email,
-        'criado_em': Timestamp.now(),
-      });
+      await _firestore
+          .collection('usuarios')
+          .doc(cred.user!.uid)
+          .set({'uid': cred.user!.uid, 'nome': nome, 'email': email});
 
       return null; // Sucesso
     } on FirebaseAuthException catch (e) {
