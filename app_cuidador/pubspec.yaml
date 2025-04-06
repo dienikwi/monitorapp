@@ -12,6 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.1.0
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.17.5
+  cloud_firestore: ^4.13.5
 
   cupertino_icons: ^1.0.8
 
