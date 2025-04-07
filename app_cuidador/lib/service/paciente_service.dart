@@ -31,4 +31,31 @@ class PacienteService {
       return 'Erro ao adicionar paciente: ${e.toString()}';
     }
   }
+
+  Future<String?> deletarPaciente(String pacienteId) async {
+    try {
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) return 'Usuário não autenticado.';
+
+      await _firestore
+          .collection('usuarios')
+          .doc(uid)
+          .collection('pacientes')
+          .doc(pacienteId)
+          .delete();
+
+      return null;
+    } catch (e) {
+      return 'Erro ao deletar paciente: ${e.toString()}';
+    }
+  }
+
+  Stream<QuerySnapshot> listarPacientes() {
+    final uid = _auth.currentUser?.uid;
+    return _firestore
+        .collection('usuarios')
+        .doc(uid)
+        .collection('pacientes')
+        .snapshots();
+  }
 }
