@@ -10,6 +10,9 @@ class PacienteService {
     required String idade,
     required String endereco,
     required String codigo,
+    required double latitude,
+    required double longitude,
+    required double raio,
   }) async {
     try {
       final uid = _auth.currentUser?.uid;
@@ -24,6 +27,11 @@ class PacienteService {
         'idade': idade,
         'endereco': endereco,
         'codigo': codigo,
+        'localizacao': {
+          'latitude': latitude,
+          'longitude': longitude,
+          'raio': raio,
+        }
       });
 
       return null;

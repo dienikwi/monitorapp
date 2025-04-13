@@ -1,4 +1,6 @@
+import 'package:app_cuidador/pages/selecionar_local_page.dart';
 import 'package:app_cuidador/service/paciente_service.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import '../components/custom_button.dart';
 import '../components/custom_textfield.dart';
@@ -18,6 +20,8 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
   final TextEditingController codigoController = TextEditingController();
 
   bool _carregando = false;
+  LatLng? localSelecionado;
+  double? raioSelecionado;
 
   void _mostrarAlerta(BuildContext context, String mensagem) {
     final snackBar = SnackBar(
@@ -40,6 +44,11 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
     final endereco = enderecoController.text.trim();
     final codigo = codigoController.text.trim();
 
+    if (localSelecionado == null || raioSelecionado == null) {
+      _mostrarAlerta(context, 'Selecione uma área delimitadora no mapa.');
+      return;
+    }
+
     if (nome.isEmpty || idade.isEmpty || endereco.isEmpty || codigo.isEmpty) {
       _mostrarAlerta(context, 'Por favor, preencha todos os campos.');
       return;
@@ -52,6 +61,9 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
       idade: idade,
       endereco: endereco,
       codigo: codigo,
+      latitude: localSelecionado!.latitude,
+      longitude: localSelecionado!.longitude,
+      raio: raioSelecionado!,
     );
 
     setState(() => _carregando = false);
@@ -122,8 +134,18 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
                 const SizedBox(height: 32),
                 CustomButton(
                   texto: 'Criar área delimitadora',
-                  onPressed: () {
-                    // lógica futura
+                  onPressed: () async {
+                    final resultado = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MapaAreaPage(
+                          onAreaSelecionada: (local, raio) {
+                            localSelecionado = local;
+                            raioSelecionado = raio;
+                          },
+                        ),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 16),

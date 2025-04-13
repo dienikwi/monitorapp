@@ -1,3 +1,4 @@
+import 'package:app_cuidador/pages/paciente_mapa_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -85,6 +86,21 @@ class ListagemPacientesPage extends StatelessWidget {
                       SnackBar(content: Text(erro)),
                     );
                   }
+                },
+                onTap: () {
+                  final localizacao = paciente['localizacao'];
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PacienteMapaPage(
+                        nome: paciente['nome'],
+                        codigo: paciente['codigo'],
+                        latitude: localizacao['latitude'],
+                        longitude: localizacao['longitude'],
+                        raio: localizacao['raio'],
+                      ),
+                    ),
+                  );
                 },
               );
             },
