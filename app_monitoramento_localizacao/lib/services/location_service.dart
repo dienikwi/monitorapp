@@ -32,9 +32,6 @@ class LocationService {
       'longitude': posicao.longitude,
     };
 
-    await FirebaseDatabase.instance
-        .ref("localizacoes/$codigo")
-        .push()
-        .set(dados);
+    await FirebaseDatabase.instance.ref("localizacoes/$codigo").set(dados);
   }
 }
