@@ -7,6 +7,7 @@ class PacienteCard extends StatelessWidget {
   final String endereco;
   final String codigo;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
   final VoidCallback onTap;
 
   const PacienteCard({
@@ -16,6 +17,7 @@ class PacienteCard extends StatelessWidget {
     required this.endereco,
     required this.codigo,
     required this.onDelete,
+    required this.onEdit,
     required this.onTap,
   });
 
@@ -51,10 +53,19 @@ class PacienteCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: onDelete,
-                tooltip: 'Excluir paciente',
+              Column(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.black),
+                    onPressed: onEdit,
+                    tooltip: 'Editar paciente',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: onDelete,
+                    tooltip: 'Excluir paciente',
+                  ),
+                ],
               ),
             ],
           ),

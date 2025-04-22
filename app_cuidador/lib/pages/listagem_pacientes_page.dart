@@ -22,6 +22,28 @@ class ListagemPacientesPage extends StatelessWidget {
     );
   }
 
+  void _abrirEdicaoPaciente(BuildContext context, DocumentSnapshot paciente) {
+    final pacienteId = paciente.id;
+    final localizacao = paciente['localizacao'];
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CadastroPacientePage(
+          pacienteId: pacienteId,
+          nomeInicial: paciente['nome'],
+          idadeInicial: paciente['idade'],
+          enderecoInicial: paciente['endereco'],
+          codigoInicial: paciente['codigo'],
+          latitudeInicial: localizacao['latitude'],
+          longitudeInicial: localizacao['longitude'],
+          raioInicial: localizacao['raio'],
+          isEdicao: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,6 +109,7 @@ class ListagemPacientesPage extends StatelessWidget {
                     );
                   }
                 },
+                onEdit: () => _abrirEdicaoPaciente(context, paciente),
                 onTap: () {
                   final localizacao = paciente['localizacao'];
                   Navigator.push(

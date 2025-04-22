@@ -7,21 +7,59 @@ import '../components/custom_textfield.dart';
 import '../utils/colors.dart';
 
 class CadastroPacientePage extends StatefulWidget {
-  const CadastroPacientePage({super.key});
+  final String? pacienteId;
+  final String? nomeInicial;
+  final String? idadeInicial;
+  final String? enderecoInicial;
+  final String? codigoInicial;
+  final double? latitudeInicial;
+  final double? longitudeInicial;
+  final double? raioInicial;
+  final bool isEdicao;
+
+  const CadastroPacientePage({
+    super.key,
+    this.pacienteId,
+    this.nomeInicial,
+    this.idadeInicial,
+    this.enderecoInicial,
+    this.codigoInicial,
+    this.latitudeInicial,
+    this.longitudeInicial,
+    this.raioInicial,
+    this.isEdicao = false,
+  });
 
   @override
   State<CadastroPacientePage> createState() => _CadastroPacientePageState();
 }
 
 class _CadastroPacientePageState extends State<CadastroPacientePage> {
-  final TextEditingController nomeController = TextEditingController();
-  final TextEditingController idadeController = TextEditingController();
-  final TextEditingController enderecoController = TextEditingController();
-  final TextEditingController codigoController = TextEditingController();
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _idadeController = TextEditingController();
+  final TextEditingController _enderecoController = TextEditingController();
+  final TextEditingController _codigoController = TextEditingController();
 
   bool _carregando = false;
-  LatLng? localSelecionado;
-  double? raioSelecionado;
+  LatLng? _localSelecionado;
+  double? _raioSelecionado;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEdicao) {
+      _nomeController.text = widget.nomeInicial ?? '';
+      _idadeController.text = widget.idadeInicial ?? '';
+      _enderecoController.text = widget.enderecoInicial ?? '';
+      _codigoController.text = widget.codigoInicial ?? '';
+
+      if (widget.latitudeInicial != null && widget.longitudeInicial != null) {
+        _localSelecionado =
+            LatLng(widget.latitudeInicial!, widget.longitudeInicial!);
+        _raioSelecionado = widget.raioInicial;
+      }
+    }
+  }
 
   void _mostrarAlerta(BuildContext context, String mensagem) {
     final snackBar = SnackBar(
@@ -38,13 +76,13 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _adicionarPaciente() async {
-    final nome = nomeController.text.trim();
-    final idade = idadeController.text.trim();
-    final endereco = enderecoController.text.trim();
-    final codigo = codigoController.text.trim();
+  void _salvarPaciente() async {
+    final nome = _nomeController.text.trim();
+    final idade = _idadeController.text.trim();
+    final endereco = _enderecoController.text.trim();
+    final codigo = _codigoController.text.trim();
 
-    if (localSelecionado == null || raioSelecionado == null) {
+    if (_localSelecionado == null || _raioSelecionado == null) {
       _mostrarAlerta(context, 'Selecione uma área delimitadora no mapa.');
       return;
     }
@@ -56,15 +94,33 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
 
     setState(() => _carregando = true);
 
-    final erro = await PacienteService().adicionarPaciente(
-      nome: nome,
-      idade: idade,
-      endereco: endereco,
-      codigo: codigo,
-      latitude: localSelecionado!.latitude,
-      longitude: localSelecionado!.longitude,
-      raio: raioSelecionado!,
-    );
+    String? erro;
+    String mensagemSucesso;
+
+    if (widget.isEdicao) {
+      erro = await PacienteService().atualizarPaciente(
+        pacienteId: widget.pacienteId!,
+        nome: nome,
+        idade: idade,
+        endereco: endereco,
+        codigo: codigo,
+        latitude: _localSelecionado!.latitude,
+        longitude: _localSelecionado!.longitude,
+        raio: _raioSelecionado!,
+      );
+      mensagemSucesso = 'Paciente atualizado com sucesso!';
+    } else {
+      erro = await PacienteService().adicionarPaciente(
+        nome: nome,
+        idade: idade,
+        endereco: endereco,
+        codigo: codigo,
+        latitude: _localSelecionado!.latitude,
+        longitude: _localSelecionado!.longitude,
+        raio: _raioSelecionado!,
+      );
+      mensagemSucesso = 'Paciente adicionado com sucesso!';
+    }
 
     setState(() => _carregando = false);
 
@@ -73,12 +129,12 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
     if (erro == null) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Paciente adicionado com sucesso!',
-              style: TextStyle(color: Colors.white)),
+        SnackBar(
+          content: Text(mensagemSucesso,
+              style: const TextStyle(color: Colors.white)),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.all(16),
+          margin: const EdgeInsets.all(16),
         ),
       );
     } else {
@@ -98,9 +154,9 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 50),
-                const Text(
-                  'Adicionar paciente',
-                  style: TextStyle(
+                Text(
+                  widget.isEdicao ? 'Editar paciente' : 'Adicionar paciente',
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textoEBotao,
@@ -109,39 +165,43 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
                 const SizedBox(height: 50),
                 CustomTextField(
                   hintText: 'Código',
-                  controller: codigoController,
+                  controller: _codigoController,
                   obscureText: false,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   hintText: 'Nome completo',
-                  controller: nomeController,
+                  controller: _nomeController,
                   obscureText: false,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   hintText: 'Idade',
-                  controller: idadeController,
+                  controller: _idadeController,
                   obscureText: false,
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   hintText: 'Endereço',
-                  controller: enderecoController,
+                  controller: _enderecoController,
                   obscureText: false,
                 ),
                 const SizedBox(height: 32),
                 CustomButton(
-                  texto: 'Criar área delimitadora',
+                  texto: widget.isEdicao
+                      ? 'Alterar área delimitadora'
+                      : 'Criar área delimitadora',
                   onPressed: () async {
-                    final resultado = await Navigator.push(
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => MapaAreaPage(
                           onAreaSelecionada: (local, raio) {
-                            localSelecionado = local;
-                            raioSelecionado = raio;
+                            setState(() {
+                              _localSelecionado = local;
+                              _raioSelecionado = raio;
+                            });
                           },
                         ),
                       ),
@@ -150,8 +210,8 @@ class _CadastroPacientePageState extends State<CadastroPacientePage> {
                 ),
                 const SizedBox(height: 16),
                 CustomButton(
-                  texto: 'Adicionar',
-                  onPressed: _carregando ? () {} : _adicionarPaciente,
+                  texto: widget.isEdicao ? 'Salvar alterações' : 'Adicionar',
+                  onPressed: _carregando ? () {} : _salvarPaciente,
                 ),
               ],
             ),

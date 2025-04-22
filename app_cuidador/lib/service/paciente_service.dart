@@ -58,6 +58,43 @@ class PacienteService {
     }
   }
 
+  Future<String?> atualizarPaciente({
+    required String pacienteId,
+    required String nome,
+    required String idade,
+    required String endereco,
+    required String codigo,
+    required double latitude,
+    required double longitude,
+    required double raio,
+  }) async {
+    try {
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) return 'Usuário não autenticado.';
+
+      await _firestore
+          .collection('usuarios')
+          .doc(uid)
+          .collection('pacientes')
+          .doc(pacienteId)
+          .update({
+        'nome': nome,
+        'idade': idade,
+        'endereco': endereco,
+        'codigo': codigo,
+        'localizacao': {
+          'latitude': latitude,
+          'longitude': longitude,
+          'raio': raio,
+        }
+      });
+
+      return null;
+    } catch (e) {
+      return 'Erro ao atualizar paciente: ${e.toString()}';
+    }
+  }
+
   Stream<QuerySnapshot> listarPacientes() {
     final uid = _auth.currentUser?.uid;
     return _firestore
