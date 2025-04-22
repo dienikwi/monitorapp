@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "855669185177",
+    "firebase_url": "https://app-cuidador-default-rtdb.firebaseio.com",
+    "project_id": "app-cuidador",
+    "storage_bucket": "app-cuidador.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855669185177:android:ad431b4995ca902c227608",
+        "android_client_info": {
+          "package_name": "com.example.app_cuidador"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZatFgqeZ3OqreljiWEvARQY8nSnatkFY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855669185177:android:ab6d4fcffed373e1227608",
+        "android_client_info": {
+          "package_name": "com.example.app_monitoramento_localizacao"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZatFgqeZ3OqreljiWEvARQY8nSnatkFY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
