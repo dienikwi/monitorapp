@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../components/custom_button.dart';
 import '../components/custom_textfield.dart';
@@ -54,6 +55,9 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await _authService.loginUsuario(email: email, senha: senha);
+
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      await _authService.salvarTokenFCM(uid);
 
       if (!mounted) return;
 
