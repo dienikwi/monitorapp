@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'dart:math' show cos, sqrt, asin;
 
 class PacienteMapaPage extends StatefulWidget {
   final String nome;
@@ -25,6 +26,7 @@ class PacienteMapaPage extends StatefulWidget {
 class _PacienteMapaPageState extends State<PacienteMapaPage> {
   LatLng? _ultimaLocalizacao;
   DatabaseReference? _ref;
+  bool _alertaMostradoForaDoRaio = false;
 
   @override
   void initState() {
@@ -49,18 +51,62 @@ class _PacienteMapaPageState extends State<PacienteMapaPage> {
     });
   }
 
+  double _calcularDistancia(LatLng ponto1, LatLng ponto2) {
+    const p = 0.017453292519943295; // Pi / 180
+    final a = 0.5 -
+        cos((ponto2.latitude - ponto1.latitude) * p) / 2 +
+        cos(ponto1.latitude * p) *
+            cos(ponto2.latitude * p) *
+            (1 - cos((ponto2.longitude - ponto1.longitude) * p)) /
+            2;
+    return 12742 * asin(sqrt(a)) * 1000;
+  }
+
   void _atualizarLocalizacao(DataSnapshot snapshot) {
     final dados = snapshot.value as Map?;
     if (dados != null &&
         dados['latitude'] != null &&
         dados['longitude'] != null) {
+      final novaLocalizacao = LatLng(
+        dados['latitude'] * 1.0,
+        dados['longitude'] * 1.0,
+      );
+
       setState(() {
-        _ultimaLocalizacao = LatLng(
-          dados['latitude'] * 1.0,
-          dados['longitude'] * 1.0,
-        );
+        _ultimaLocalizacao = novaLocalizacao;
       });
+
+      final localizacaoCentral = LatLng(widget.latitude, widget.longitude);
+      final distancia = _calcularDistancia(localizacaoCentral, novaLocalizacao);
+
+      if (distancia > widget.raio) {
+        if (!_alertaMostradoForaDoRaio) {
+          _mostrarAlerta(
+              context, '${widget.nome} está fora da área designada!');
+          _alertaMostradoForaDoRaio = true;
+        }
+      } else {
+        _alertaMostradoForaDoRaio = false;
+      }
     }
+  }
+
+  void _mostrarAlerta(BuildContext context, String mensagem,
+      [Color cor = Colors.red]) {
+    if (!mounted) return;
+
+    final snackBar = SnackBar(
+      content: Text(
+        mensagem,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: cor,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+      duration: const Duration(seconds: 3),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
