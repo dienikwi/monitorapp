@@ -33,7 +33,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
 
   Workmanager().registerPeriodicTask(
     "1", // ID único
